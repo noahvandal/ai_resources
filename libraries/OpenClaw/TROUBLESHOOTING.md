@@ -1,0 +1,110 @@
+# OpenClaw Troubleshooting
+
+This is a grab bag of common “it doesn’t work” issues when self-hosting OpenClaw.
+
+## 1) Gateway UI won’t load
+
+### Check: is the gateway running?
+
+On the VPS:
+
+```bash
+openclaw status
+openclaw gateway status
+```
+
+If you installed the daemon as a **systemd user service**, check logs:
+
+```bash
+journalctl --user -u openclaw-gateway.service -f
+```
+
+### Check: are you using an SSH tunnel?
+
+If the gateway binds to `127.0.0.1`, it is **not** reachable from the internet directly.
+From your laptop:
+
+```bash
+ssh -N -L 18789:127.0.0.1:18789 openclaw@<server-ip>
+```
+
+Then open:
+- http://127.0.0.1:18789/
+
+## 2) “Connection refused” / port not reachable
+
+Common causes:
+
+- you forgot the SSH tunnel
+- the gateway is bound to loopback (by design)
+- the gateway isn’t running
+- you changed the gateway port
+
+On the VPS:
+
+```bash
+ss -lntp | rg 18789 || true
+```
+
+## 3) The gateway service starts then stops
+
+This often means:
+
+- missing runtime dependency
+- PATH issues inside systemd
+- out of memory
+
+Check logs:
+
+```bash
+journalctl --user -u openclaw-gateway.service -n 200 --no-pager
+```
+
+If OOM is suspected:
+
+```bash
+free -h
+journalctl -k -n 200 --no-pager | rg -i "oom|killed" || true
+```
+
+## 4) Out of memory (OOM) / random SIGKILL
+
+Symptoms:
+- the process suddenly dies
+- builds die with exit code 137
+
+Fixes:
+- add swap (2GB is common for small VPS)
+- upgrade RAM (2GB+ recommended)
+- reduce concurrency for builds
+
+## 5) Claude rate limits show null / token expired
+
+If you’re using Claude Max OAuth usage checks and they appear expired:
+
+- run the Claude CLI in a real terminal session (TTY) on the host
+- then retry your usage check
+
+(Exact commands vary by environment; the important part is that the CLI refreshes auth.)
+
+## 6) UFW/Firewall broke SSH
+
+If you changed SSH ports, make sure UFW allows the new port.
+
+On the VPS:
+
+```bash
+ufw status verbose
+```
+
+If you’re locked out, use your VPS provider’s console access to fix UFW rules.
+
+## 7) OAuth / “needs browser” logins
+
+Some tools (Gmail/OAuth flows) require browser interaction.
+Common workarounds:
+
+- do the auth from a machine with a browser
+- use SSH port forwarding
+- use device-code flows if supported
+
