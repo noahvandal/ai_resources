@@ -2,7 +2,7 @@
 
 A general repository of resources, code, learnings, and practical setup guides.
 
-Initially intended for the SF Devs AI Meetup, but useful to anyone.
+Initially intended for the SF Devs AI Meetup, to be used by anyone. (**the BETTER SF**).
 
 ## Contents
 
