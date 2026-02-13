@@ -6,7 +6,7 @@ Initially intended for the SF Devs AI Meetup, but useful to anyone.
 
 ## Contents
 
-- [`openclaw/`](./openclaw) — self-hosting OpenClaw (VPS setup + hardening + automation script)
+- [`libraries/OpenClaw/`](./libraries/OpenClaw) — self-hosting OpenClaw (VPS setup + hardening + automation script)
 
 ## Organization
 

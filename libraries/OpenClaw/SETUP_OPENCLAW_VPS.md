@@ -80,14 +80,33 @@ ssh -N -L 18789:127.0.0.1:18789 openclaw@YOUR_VPS_IP
 Then open:
 - `http://127.0.0.1:18789/`
 
-### Option B: Tailscale
+### Option B: Tailscale (recommended for "remote but private")
 Install Tailscale on the VPS and your laptop, then access via MagicDNS/IP.
 
-You can keep the Gateway loopback-only and use Tailscale features to reach it.
+**Two good patterns:**
 
-> If you expose ports publicly, treat it like a real production service: TLS, strict auth, firewall rules, monitoring.
+1) **Keep OpenClaw bound to loopback** (127.0.0.1) and use Tailscale for admin access + SSH into the box, then run the same SSH tunnel as above.
 
-## 6) Where state lives (backup!)
+2) **Bind OpenClaw to the Tailnet interface** (so it’s reachable only inside your Tailnet). Depending on your OpenClaw config, that can look like either:
+- running the Gateway on a Tailnet bind address, or
+- using **Tailscale Serve** to publish an HTTPS URL that still targets a loopback-only service.
+
+If you do choose to expose ports publicly, treat it like a real production service: TLS, strict auth, firewall rules, monitoring.
+
+## 6) Docker-based option (when you want maximum reproducibility)
+
+If you prefer containerized deployments (and are comfortable with Docker), running OpenClaw via **Docker Compose** can be a great option:
+
+- Easier to reproduce the same setup across VPS providers
+- Cleaner dependency isolation
+- Straightforward upgrades/rollbacks
+
+Key idea: **persist** the OpenClaw state directory (`~/.openclaw`) as a host-mounted volume, otherwise you’ll lose credentials/state on container rebuild.
+
+Recommended next step:
+- Follow the official OpenClaw Docker guidance and adapt it to your VPS + persistence needs.
+
+## 7) Where state lives (backup!)
 
 Everything important is in:
 - `~/.openclaw/` (config, tokens, sessions)
@@ -99,13 +118,14 @@ Back it up periodically:
 tar -czf openclaw-backup.tgz ~/.openclaw
 ```
 
-## 7) Common “gotchas”
+## 8) Common “gotchas”
 
 - **RAM/OOM:** add swap or upgrade the VPS.
 - **PATH/systemd:** if a service can’t find `node`/`openclaw`, check the systemd unit environment.
 - **OAuth CLIs:** Gmail/Google CLIs may require browser-based auth; do this over SSH with port-forwarding or use device-code flows if supported.
+- **Tailscale expectations:** Tailscale doesn’t automatically secure an app that’s bound to `0.0.0.0` on the public interface. Prefer loopback-only + Serve, or bind specifically to the Tailnet.
 
-## 8) Quick commands
+## 9) Quick commands
 
 ```bash
 # Gateway status
@@ -124,6 +144,6 @@ openclaw gateway restart
 ## Next step
 
 Use the automation script in this folder:
-- `openclaw/openclaw-setup.sh`
+- `libraries/OpenClaw/setup.sh`
 
 It hardens the VPS and installs OpenClaw, then stops and prompts you for the manual steps (keys/tokens/OAuth).
