@@ -49,6 +49,12 @@ sudo bash setup.sh
 
 During setup, you’ll be prompted to **paste your SSH public key** (recommended).
 
+If the script is interrupted at any point, it’s safe to re-run:
+
+```bash
+sudo bash setup.sh
+```
+
 The script will:
 - create a non-root `openclaw` user
 - add your SSH key to `~openclaw/.ssh/authorized_keys`

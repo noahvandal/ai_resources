@@ -119,6 +119,12 @@ cat ~/.ssh/id_ed25519.pub
 
 3) Re-run the VPS setup script and paste the key when prompted.
 
+If your previous run got interrupted, that’s fine — it’s designed to resume safely:
+
+```bash
+sudo bash setup.sh
+```
+
 If you must install it manually as root, append it to:
 - `/home/openclaw/.ssh/authorized_keys`
 
