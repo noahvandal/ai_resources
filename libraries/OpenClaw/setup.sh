@@ -73,6 +73,7 @@ DISABLE_PW=${DISABLE_PW}
 DISABLE_ROOT=${DISABLE_ROOT}
 INSTALL_TS=${INSTALL_TS}
 ADD_SWAP=${ADD_SWAP}
+SET_USER_PASSWORD=${SET_USER_PASSWORD}
 EOF
   chmod 600 "$STATE_FILE" || true
 }
@@ -81,6 +82,7 @@ load_state
 
 DEFAULT_USER="${OC_USER:-openclaw}"
 DEFAULT_SSH_PORT="${SSH_PORT:-22}"
+DEFAULT_SET_USER_PASSWORD="${SET_USER_PASSWORD:-Y}"
 
 read -r -p "Create/use non-root user [${DEFAULT_USER}]: " OC_USER
 OC_USER=${OC_USER:-$DEFAULT_USER}
@@ -100,11 +102,22 @@ INSTALL_TS=${INSTALL_TS:-${INSTALL_TS:-N}}
 read -r -p "Add swap file (recommended for 1–2GB RAM)? [Y/n]: " ADD_SWAP
 ADD_SWAP=${ADD_SWAP:-${ADD_SWAP:-Y}}
 
+read -r -p "Set a password for '${OC_USER}' (used for sudo prompts; SSH still uses keys)? [Y/n]: " SET_USER_PASSWORD
+SET_USER_PASSWORD=${SET_USER_PASSWORD:-$DEFAULT_SET_USER_PASSWORD}
+
 save_state
 
 has_installed_ssh_key() {
   local path="$1"
   [[ -f "$path" ]] && grep -Eq '^ssh-(ed25519|rsa) ' "$path" 2>/dev/null
+}
+
+has_user_password() {
+  # passwd -S: second field is status: P=set, L=locked, NP=no password
+  local user="$1"
+  local status
+  status=$(passwd -S "$user" 2>/dev/null | awk '{print $2}' || true)
+  [[ "$status" == "P" ]]
 }
 
 # Ask for pubkey only if we haven't already successfully installed one.
@@ -180,6 +193,20 @@ create_user_and_sudo() {
   usermod -aG sudo "$OC_USER"
 }
 
+set_user_password() {
+  if [[ ! "$SET_USER_PASSWORD" =~ ^[Yy]$ ]]; then
+    warn "Skipping password setup for ${OC_USER}. Note: sudo may prompt for a password later."
+    return 0
+  fi
+
+  if has_user_password "$OC_USER"; then
+    log "${OC_USER} already has a password set; skipping"
+    return 0
+  fi
+
+  log "Set a password for ${OC_USER} (this is used for sudo prompts; SSH remains key-based)"
+  passwd "$OC_USER"
+}
 authorize_pubkey() {
   if [[ -z "$SSH_PUBKEY" ]]; then
     warn "No SSH public key provided. You'll need to add one before disabling password/root SSH."
@@ -337,6 +364,7 @@ install_tailscale() {
 
 step base_packages install_base_packages
 step user create_user_and_sudo
+step user_password set_user_password
 step ssh_pubkey authorize_pubkey
 step sshd configure_sshd
 step ufw configure_ufw
@@ -368,6 +396,11 @@ MANUAL STEPS (you must do these)
    Tip: if you need to finish installs first without changing SSH settings:
 
        sudo bash setup.sh --skip-ssh-hardening
+
+   Note on sudo password prompts:
+   - If you chose to set a password in this script, sudo will use it.
+   - If you skipped it, you'll likely be prompted later and sudo may fail until you run:
+       sudo passwd ${OC_USER}
 
 2) Run OpenClaw onboarding as '${OC_USER}':
 

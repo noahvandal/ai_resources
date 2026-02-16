@@ -47,7 +47,9 @@ curl -fsSL https://raw.githubusercontent.com/noahvandal/ai_resources/main/librar
 sudo bash setup.sh
 ```
 
-During setup, you’ll be prompted to **paste your SSH public key** (recommended).
+During setup, you’ll be prompted to:
+- paste your SSH public key (recommended)
+- set a password for the `openclaw` user (used for `sudo` prompts; SSH still uses keys)
 
 If the script is interrupted at any point, it’s safe to re-run:
 

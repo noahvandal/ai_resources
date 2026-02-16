@@ -128,7 +128,19 @@ sudo bash setup.sh
 If you must install it manually as root, append it to:
 - `/home/openclaw/.ssh/authorized_keys`
 
-## 8) pnpm global install error (ERR_PNPM_NO_GLOBAL_BIN_DIR)
+## 8) `sudo` prompts for a password (but you never set one)
+
+Ubuntu `sudo` typically prompts for the *user's* password.
+
+Fix (as root or via an existing root SSH session):
+
+```bash
+sudo passwd openclaw
+```
+
+This password is for sudo prompts / console access. It does **not** enable SSH password login (we still default to keys-only).
+
+## 9) pnpm global install error (ERR_PNPM_NO_GLOBAL_BIN_DIR)
 
 On fresh machines, pnpm can’t always figure out where to put global binaries.
 
@@ -141,7 +153,7 @@ pnpm setup
 # restart your shell
 ```
 
-## 9) OAuth / “needs browser” logins
+## 10) OAuth / “needs browser” logins
 
 Some tools (Gmail/OAuth flows) require browser interaction.
 Common workarounds:
