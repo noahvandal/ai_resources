@@ -48,8 +48,8 @@ sudo bash setup.sh
 ```
 
 During setup, you’ll be prompted to:
-- paste your SSH public key (recommended)
 - set a password for the `openclaw` user (used for `sudo` prompts; SSH still uses keys)
+- paste your SSH public key (recommended)
 
 If the script is interrupted at any point, it’s safe to re-run:
 
