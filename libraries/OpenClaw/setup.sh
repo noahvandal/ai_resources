@@ -47,6 +47,15 @@ INSTALL_TS=${INSTALL_TS:-N}
 read -r -p "Add swap file (recommended for 1–2GB RAM)? [Y/n]: " ADD_SWAP
 ADD_SWAP=${ADD_SWAP:-Y}
 
+echo
+echo "SSH KEY SETUP (recommended)"
+echo "- On your laptop, generate a key if you don't have one:"
+echo "    ssh-keygen -t ed25519 -C \"your_email@example.com\""
+echo "- Then copy your public key:"
+echo "    cat ~/.ssh/id_ed25519.pub"
+echo
+echo "Paste the full line (starts with 'ssh-ed25519 ...') when prompted below."
+echo
 read -r -p "Paste your SSH public key for the new '${OC_USER}' user (ed25519 .pub). Leave blank to skip for now: " SSH_PUBKEY
 SSH_PUBKEY=${SSH_PUBKEY:-}
 

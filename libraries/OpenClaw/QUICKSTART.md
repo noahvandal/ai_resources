@@ -10,13 +10,33 @@ Goal: get from “fresh Ubuntu VPS” → “OpenClaw Gateway UI loads locally i
 - SSH access
 - A local terminal on your laptop
 
-## Step 1 — SSH into your VPS as root
+## Step 1 — Create an SSH key (if you don’t already have one)
+
+On your laptop, check for an existing key:
+
+```bash
+ls -la ~/.ssh
+```
+
+If you don’t see something like `id_ed25519` + `id_ed25519.pub`, create one:
+
+```bash
+ssh-keygen -t ed25519 -C "your_email@example.com"
+```
+
+Now copy the public key (you’ll paste it during VPS setup):
+
+```bash
+cat ~/.ssh/id_ed25519.pub
+```
+
+## Step 2 — SSH into your VPS as root
 
 ```bash
 ssh root@<server-ip>
 ```
 
-## Step 2 — Run the setup script
+## Step 3 — Run the setup script
 
 On the VPS:
 
@@ -37,28 +57,6 @@ The script will:
 - install the OpenClaw CLI
 
 **Important:** Don’t close your root SSH session until you confirm you can log in as the new non-root user.
-
-## Step 3 — Create an SSH key (if you don’t already have one)
-
-On your laptop, check for an existing key:
-
-```bash
-ls -la ~/.ssh
-```
-
-If you don’t see something like `id_ed25519` + `id_ed25519.pub`, create one:
-
-```bash
-ssh-keygen -t ed25519 -C "your_email@example.com"
-```
-
-Now copy the public key to your clipboard:
-
-```bash
-cat ~/.ssh/id_ed25519.pub
-```
-
-Paste that when the VPS setup script asks for it.
 
 ## Step 4 — Log in as the non-root user
 
