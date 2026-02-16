@@ -50,7 +50,6 @@ Then install OpenClaw (global):
 
 ```bash
 npm i -g openclaw@latest
-# or pnpm add -g openclaw@latest
 openclaw --version
 ```
 

@@ -99,7 +99,31 @@ ufw status verbose
 
 If you’re locked out, use your VPS provider’s console access to fix UFW rules.
 
-## 7) OAuth / “needs browser” logins
+## 7) `ssh-copy-id` says “No identities found”
+
+This means you don’t have an SSH key on your laptop yet.
+
+Fix:
+
+```bash
+ssh-keygen -t ed25519 -C "your_email@example.com"
+ssh-copy-id -p 22 openclaw@<server-ip>
+```
+
+## 8) pnpm global install error (ERR_PNPM_NO_GLOBAL_BIN_DIR)
+
+On fresh machines, pnpm can’t always figure out where to put global binaries.
+
+In this repo’s setup script, we avoid this by installing OpenClaw globally with **npm**.
+
+If you do want pnpm globals later, run:
+
+```bash
+pnpm setup
+# restart your shell
+```
+
+## 9) OAuth / “needs browser” logins
 
 Some tools (Gmail/OAuth flows) require browser interaction.
 Common workarounds:

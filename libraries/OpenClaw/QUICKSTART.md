@@ -35,7 +35,21 @@ The script will:
 
 **Important:** Don’t close your SSH session until you confirm you can log in as the new non-root user.
 
-## Step 3 — Log in as the non-root user
+## Step 3 — Create an SSH key (if you don’t already have one)
+
+On your laptop, check for an existing key:
+
+```bash
+ls -la ~/.ssh
+```
+
+If you don’t see something like `id_ed25519` + `id_ed25519.pub`, create one:
+
+```bash
+ssh-keygen -t ed25519 -C "your_email@example.com"
+```
+
+## Step 4 — Log in as the non-root user
 
 From your laptop:
 
@@ -45,7 +59,7 @@ ssh -p 22 openclaw@<server-ip>
 
 (If you changed the SSH port in the script prompts, use that port.)
 
-## Step 4 — Run OpenClaw onboarding
+## Step 5 — Run OpenClaw onboarding
 
 On the VPS (as the non-root user):
 
@@ -58,7 +72,7 @@ You’ll be prompted for:
 - channel setup (Telegram/WhatsApp/etc.)
 - gateway auth/token
 
-## Step 5 — Open the Gateway UI via SSH tunnel
+## Step 6 — Open the Gateway UI via SSH tunnel
 
 On your laptop:
 

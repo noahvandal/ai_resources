@@ -188,13 +188,18 @@ require_cmd npm
 
 log "Installing pnpm"
 # pnpm is a fast Node.js package manager.
-# We use Corepack (built into modern Node) to enable it.
+# We enable it via Corepack (built into modern Node).
+#
+# Note: pnpm's *global* installs can fail on fresh machines if PNPM_HOME isn't set
+# (ERR_PNPM_NO_GLOBAL_BIN_DIR). To keep this script beginner-friendly, we do NOT
+# rely on pnpm for global installs.
 corepack enable || true
 corepack prepare pnpm@latest --activate || npm i -g pnpm
 
 log "Installing OpenClaw (global)"
-# Installs the OpenClaw CLI so we can run `openclaw onboard`, `openclaw status`, etc.
-pnpm add -g openclaw@latest || npm i -g openclaw@latest
+# We install OpenClaw using npm because npm's global bin path is configured by default.
+# This avoids pnpm global-bin-dir setup issues on fresh VPSes.
+npm i -g openclaw@latest
 
 log "OpenClaw version"
 openclaw --version || true
@@ -216,10 +221,17 @@ MANUAL STEPS (you must do these)
 ============================================================
 
 1) On your laptop: add your SSH key for user '${OC_USER}'
-   - Copy your public key:
+
+   If you **don't already have an SSH key** on your laptop, create one first:
+
+       ssh-keygen -t ed25519 -C "your_email@example.com"
+
+   Then copy your public key to the VPS:
+
        ssh-copy-id -p ${SSH_PORT} ${OC_USER}@<server-ip>
 
    Verify you can log in as the non-root user before you close your current session:
+
        ssh -p ${SSH_PORT} ${OC_USER}@<server-ip>
 
 2) Run OpenClaw onboarding as '${OC_USER}':
