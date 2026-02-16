@@ -1,0 +1,78 @@
+# OpenClaw Quickstart (VPS + SSH tunnel)
+
+Goal: get from “fresh Ubuntu VPS” → “OpenClaw Gateway UI loads locally in your browser.”
+
+> This uses the safest *default* pattern: Gateway bound to loopback on the VPS, accessed via an SSH tunnel.
+
+## Prereqs
+
+- A VPS running **Ubuntu 22.04 or 24.04**
+- SSH access
+- A local terminal on your laptop
+
+## Step 1 — SSH into your VPS as root
+
+```bash
+ssh root@<server-ip>
+```
+
+## Step 2 — Run the setup script
+
+On the VPS:
+
+```bash
+apt update && apt install -y curl
+
+# Download the setup script (adjust URL after merge if needed)
+curl -fsSL https://raw.githubusercontent.com/noahvandal/ai_resources/main/libraries/OpenClaw/setup.sh -o setup.sh
+sudo bash setup.sh
+```
+
+The script will:
+- install basic security tooling (UFW, fail2ban, unattended upgrades)
+- install Node 22 + pnpm
+- install the OpenClaw CLI
+
+**Important:** Don’t close your SSH session until you confirm you can log in as the new non-root user.
+
+## Step 3 — Log in as the non-root user
+
+From your laptop:
+
+```bash
+ssh -p 22 openclaw@<server-ip>
+```
+
+(If you changed the SSH port in the script prompts, use that port.)
+
+## Step 4 — Run OpenClaw onboarding
+
+On the VPS (as the non-root user):
+
+```bash
+openclaw onboard --install-daemon
+```
+
+You’ll be prompted for:
+- model provider keys (Anthropic/OpenAI/etc.)
+- channel setup (Telegram/WhatsApp/etc.)
+- gateway auth/token
+
+## Step 5 — Open the Gateway UI via SSH tunnel
+
+On your laptop:
+
+```bash
+ssh -N -L 18789:127.0.0.1:18789 openclaw@<server-ip>
+```
+
+Then open:
+
+- http://127.0.0.1:18789/
+
+## What “success” looks like
+
+- The page loads and asks for your token (or shows the UI)
+- `openclaw status` reports the gateway running
+
+If you get stuck: see [`TROUBLESHOOTING.md`](./TROUBLESHOOTING.md).

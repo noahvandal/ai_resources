@@ -13,6 +13,7 @@ This folder contains practical resources for self-hosting **OpenClaw**.
 - A basic, opinionated VPS hardening checklist (SSH keys only, UFW, fail2ban, unattended upgrades)
 - Guidance on **safe remote access** (SSH tunnel and Tailscale)
 - A setup script that automates the boring stuff and then pauses for manual steps (API keys/tokens/OAuth)
+- Beginner-friendly docs: Quickstart, Troubleshooting, Glossary
 
 ## Upstream
 
