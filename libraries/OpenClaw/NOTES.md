@@ -5,6 +5,7 @@ This folder contains practical resources for self-hosting **OpenClaw**.
 ## Quick links
 
 - **VPS Setup Guide (recommended path):** [`SETUP_OPENCLAW_VPS.md`](./SETUP_OPENCLAW_VPS.md)
+- **Security / threat model:** [`SECURITY.md`](./SECURITY.md)
 - **Automation script (Ubuntu 22.04/24.04):** [`setup.sh`](./setup.sh)
 
 ## What’s included
