@@ -102,11 +102,16 @@ ADD_SWAP=${ADD_SWAP:-${ADD_SWAP:-Y}}
 
 save_state
 
+has_installed_ssh_key() {
+  local path="$1"
+  [[ -f "$path" ]] && grep -Eq '^ssh-(ed25519|rsa) ' "$path" 2>/dev/null
+}
+
 # Ask for pubkey only if we haven't already successfully installed one.
 SSH_PUBKEY=""
 HOME_DIR="/home/${OC_USER}"
 AUTH_KEYS="${HOME_DIR}/.ssh/authorized_keys"
-if [[ ! -f "$AUTH_KEYS" ]] || ! grep -Eq '^ssh-(ed25519|rsa) ' "$AUTH_KEYS" 2>/dev/null; then
+if ! has_installed_ssh_key "$AUTH_KEYS"; then
   echo
   echo "SSH KEY SETUP (recommended)"
   echo "Run these on your laptop BEFORE continuing:"
@@ -125,12 +130,34 @@ fi
 
 step() {
   local key="$1"; shift
-  if [[ $FORCE -eq 0 ]] && is_done "$key"; then
+
+  # Special case: if ssh_pubkey was marked done but no key is actually installed,
+  # do NOT skip it. This can happen if a previous run was interrupted or the user
+  # skipped the pubkey prompt.
+  if [[ "$key" == "ssh_pubkey" ]] && [[ $FORCE -eq 0 ]] && is_done "$key"; then
+    if ! has_installed_ssh_key "$AUTH_KEYS"; then
+      warn "Checkpoint 'ssh_pubkey' was set but no key is installed at $AUTH_KEYS; re-running key install step"
+    else
+      log "Skipping (already done): $key"
+      return 0
+    fi
+  elif [[ $FORCE -eq 0 ]] && is_done "$key"; then
     log "Skipping (already done): $key"
     return 0
   fi
+
   "$@"
-  mark_done "$key"
+
+  # Only mark ssh_pubkey as done if a key is actually installed.
+  if [[ "$key" == "ssh_pubkey" ]]; then
+    if has_installed_ssh_key "$AUTH_KEYS"; then
+      mark_done "$key"
+    else
+      warn "ssh_pubkey step did not install a key (yet); leaving checkpoint unset"
+    fi
+  else
+    mark_done "$key"
+  fi
 }
 
 install_base_packages() {
@@ -180,7 +207,7 @@ ensure_safe_to_harden_ssh() {
 
   # If either hardening toggle is requested, we require a working key on disk.
   if [[ "$DISABLE_PW" =~ ^[Yy]$ ]] || [[ "$DISABLE_ROOT" =~ ^[Yy]$ ]]; then
-    if [[ ! -f "$AUTH_KEYS" ]] || ! grep -Eq '^ssh-(ed25519|rsa) ' "$AUTH_KEYS" 2>/dev/null; then
+    if ! has_installed_ssh_key "$AUTH_KEYS"; then
       err "SSH hardening requested, but no SSH public key is installed at: $AUTH_KEYS"
       err "To avoid locking you out, re-run this script and paste your public key when prompted, or run with --skip-ssh-hardening."
       exit 1
