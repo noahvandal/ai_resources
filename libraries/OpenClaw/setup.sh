@@ -87,6 +87,28 @@ DEFAULT_SET_USER_PASSWORD="${SET_USER_PASSWORD:-Y}"
 read -r -p "Create/use non-root user [${DEFAULT_USER}]: " OC_USER
 OC_USER=${OC_USER:-$DEFAULT_USER}
 
+# sudo will (by default) prompt for the user's password.
+# We don't enable SSH password login, but we *do* optionally set a password for sudo/console.
+read -r -p "Set a password for '${OC_USER}' (used for sudo prompts; SSH still uses keys)? [Y/n]: " SET_USER_PASSWORD
+SET_USER_PASSWORD=${SET_USER_PASSWORD:-$DEFAULT_SET_USER_PASSWORD}
+
+USER_PASSWORD=""
+if [[ "$SET_USER_PASSWORD" =~ ^[Yy]$ ]]; then
+  # Prompt here (up-front) so users don't get surprised later.
+  # We do not store the password in the state file.
+  read -r -s -p "Enter password for ${OC_USER}: " USER_PASSWORD
+  echo
+  read -r -s -p "Confirm password for ${OC_USER}: " USER_PASSWORD_CONFIRM
+  echo
+  if [[ -z "$USER_PASSWORD" ]]; then
+    warn "Empty password entered; skipping password setup"
+    SET_USER_PASSWORD="N"
+  elif [[ "$USER_PASSWORD" != "$USER_PASSWORD_CONFIRM" ]]; then
+    err "Passwords did not match. Re-run the script and try again."
+    exit 1
+  fi
+fi
+
 read -r -p "SSH port [${DEFAULT_SSH_PORT}] (keep 22 unless you know why): " SSH_PORT
 SSH_PORT=${SSH_PORT:-$DEFAULT_SSH_PORT}
 
@@ -101,9 +123,6 @@ INSTALL_TS=${INSTALL_TS:-${INSTALL_TS:-N}}
 
 read -r -p "Add swap file (recommended for 1–2GB RAM)? [Y/n]: " ADD_SWAP
 ADD_SWAP=${ADD_SWAP:-${ADD_SWAP:-Y}}
-
-read -r -p "Set a password for '${OC_USER}' (used for sudo prompts; SSH still uses keys)? [Y/n]: " SET_USER_PASSWORD
-SET_USER_PASSWORD=${SET_USER_PASSWORD:-$DEFAULT_SET_USER_PASSWORD}
 
 save_state
 
@@ -205,7 +224,13 @@ set_user_password() {
   fi
 
   log "Set a password for ${OC_USER} (this is used for sudo prompts; SSH remains key-based)"
-  passwd "$OC_USER"
+
+  if [[ -n "${USER_PASSWORD:-}" ]]; then
+    echo "${OC_USER}:${USER_PASSWORD}" | chpasswd
+  else
+    # Fallback: interactive prompt (e.g., rerun where we didn't collect the password up front)
+    passwd "$OC_USER"
+  fi
 }
 authorize_pubkey() {
   if [[ -z "$SSH_PUBKEY" ]]; then
