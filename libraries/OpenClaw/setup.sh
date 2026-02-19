@@ -110,17 +110,17 @@ fi
 read -r -p "SSH port [${DEFAULT_SSH_PORT}] (keep 22 unless you know why): " SSH_PORT
 SSH_PORT=${SSH_PORT:-$DEFAULT_SSH_PORT}
 
-read -r -p "Disable password SSH auth? [Y/n]: " DISABLE_PW
-DISABLE_PW=${DISABLE_PW:-${DISABLE_PW:-Y}}
+read -r -p "Disable password SSH auth? [y/N]: " DISABLE_PW
+DISABLE_PW=${DISABLE_PW:-${DISABLE_PW:-N}}
 
-read -r -p "Disable root SSH login? [Y/n]: " DISABLE_ROOT
-DISABLE_ROOT=${DISABLE_ROOT:-${DISABLE_ROOT:-Y}}
+read -r -p "Disable root SSH login? [y/N]: " DISABLE_ROOT
+DISABLE_ROOT=${DISABLE_ROOT:-${DISABLE_ROOT:-N}}
 
 read -r -p "Install Tailscale? [y/N]: " INSTALL_TS
 INSTALL_TS=${INSTALL_TS:-${INSTALL_TS:-N}}
 
-read -r -p "Add swap file (recommended for 1–2GB RAM)? [Y/n]: " ADD_SWAP
-ADD_SWAP=${ADD_SWAP:-${ADD_SWAP:-Y}}
+read -r -p "Add swap file (recommended for 1–2GB RAM)? [y/N]: " ADD_SWAP
+ADD_SWAP=${ADD_SWAP:-${ADD_SWAP:-N}}  
 
 save_state
 

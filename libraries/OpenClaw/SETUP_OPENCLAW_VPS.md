@@ -15,13 +15,17 @@ This guide walks you through the **easiest, lowest-drama** way to self-host Open
 ## 1) Pick where to host (quick recommendations)
 
 ### Paid + easiest UX
+
 - **DigitalOcean / Linode / Vultr**: simplest dashboards, predictable networking.
 - A 1 vCPU / 1GB RAM box *works*, but **2GB RAM** is more comfortable.
 
 ### Best value
+
 - **Hetzner**: excellent price/performance.
+- **Kamatera**: also great prices.
 
 ### Free (more finicky)
+
 - **Oracle Cloud Always Free (ARM)**: great specs for $0, but setup can be more annoying and some binaries are arch-specific.
 
 **OS:** Ubuntu 24.04 LTS is the default recommendation.
@@ -62,6 +66,7 @@ openclaw onboard --install-daemon
 ```
 
 This typically walks you through:
+
 - Gateway token / auth
 - Model provider keys (Claude/OpenAI/etc.)
 - Channel config (Telegram/WhatsApp/etc.)
@@ -70,23 +75,34 @@ This typically walks you through:
 ## 5) Access the Control UI (recommended patterns)
 
 ### Option A (recommended): SSH tunnel
+
 Keep Gateway bound to loopback on the VPS.
 
 On your laptop:
+
 ```bash
 ssh -N -L 18789:127.0.0.1:18789 openclaw@YOUR_VPS_IP
 ```
+
 Then open:
+
 - `http://127.0.0.1:18789/`
 
+#### Notes: 
+
+If you do not have your ssh keys set by default, you may need to point your ssh login to them, like so: 
+
+`ssh -i <path_to_ssh_key.pub> -N -L 18789:127.0.0.1:18780 openclaw@YOUR_VPS_IP`
+
 ### Option B: Tailscale (recommended for "remote but private")
+
 Install Tailscale on the VPS and your laptop, then access via MagicDNS/IP.
 
 **Two good patterns:**
 
 1) **Keep OpenClaw bound to loopback** (127.0.0.1) and use Tailscale for admin access + SSH into the box, then run the same SSH tunnel as above.
-
 2) **Bind OpenClaw to the Tailnet interface** (so it’s reachable only inside your Tailnet). Depending on your OpenClaw config, that can look like either:
+
 - running the Gateway on a Tailnet bind address, or
 - using **Tailscale Serve** to publish an HTTPS URL that still targets a loopback-only service.
 
@@ -103,11 +119,13 @@ If you prefer containerized deployments (and are comfortable with Docker), runni
 Key idea: **persist** the OpenClaw state directory (`~/.openclaw`) as a host-mounted volume, otherwise you’ll lose credentials/state on container rebuild.
 
 Recommended next step:
+
 - Follow the official OpenClaw Docker guidance and adapt it to your VPS + persistence needs.
 
 ## 7) Where state lives (backup!)
 
 Everything important is in:
+
 - `~/.openclaw/` (config, tokens, sessions)
 - `~/.openclaw/workspace/` (your agent workspace files)
 
@@ -143,6 +161,7 @@ openclaw gateway restart
 ## Next step
 
 Use the automation script in this folder:
+
 - `libraries/OpenClaw/setup.sh`
 
 It hardens the VPS and installs OpenClaw, then stops and prompts you for the manual steps (keys/tokens/OAuth).

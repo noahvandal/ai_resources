@@ -48,6 +48,7 @@ sudo bash setup.sh
 ```
 
 During setup, you’ll be prompted to:
+
 - set a password for the `openclaw` user (used for `sudo` prompts; SSH still uses keys)
 - paste your SSH public key (recommended)
 
@@ -58,6 +59,7 @@ sudo bash setup.sh
 ```
 
 The script will:
+
 - create a non-root `openclaw` user
 - add your SSH key to `~openclaw/.ssh/authorized_keys`
 - install basic security tooling (UFW, fail2ban, unattended upgrades)
@@ -85,6 +87,7 @@ openclaw onboard --install-daemon
 ```
 
 You’ll be prompted for:
+
 - model provider keys (Anthropic/OpenAI/etc.)
 - channel setup (Telegram/WhatsApp/etc.)
 - gateway auth/token
